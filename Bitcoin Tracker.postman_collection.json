@@ -1,0 +1,118 @@
+{
+	"info": {
+		"_postman_id": "ff5cfe8f-8ed5-4758-a7eb-cb9218f4a2d8",
+		"name": "Bitcoin Tracker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET Bitcoin info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "28c2ab2d-1ac1-40c6-a464-73b9b956d496",
+						"exec": [
+							"let response = pm.response.json()",
+							"",
+							"let usdRate = response.bpi.USD.rate",
+							"",
+							"let time = response.time.updatedISO",
+							"",
+							"pm.environment.set('rate', usdRate)",
+							"",
+							"pm.environment.set('time', time)",
+							"",
+							"postman.setNextRequest('Send SMS')",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://api.coindesk.com/v1/bpi/currentprice.json",
+					"protocol": "https",
+					"host": [
+						"api",
+						"coindesk",
+						"com"
+					],
+					"path": [
+						"v1",
+						"bpi",
+						"currentprice.json"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Send SMS",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{twilioAuthToken}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{twilioAccountSID}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "Body",
+							"value": "Bitcoin is at ${{rate}} as of {{time}}",
+							"type": "text"
+						},
+						{
+							"key": "To",
+							"value": "+12563054182",
+							"type": "text"
+						},
+						{
+							"key": "From",
+							"value": "+12563054182",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://api.twilio.com/2010-04-01/Accounts/{{twilioAccountSID}}/Messages.json",
+					"protocol": "https",
+					"host": [
+						"api",
+						"twilio",
+						"com"
+					],
+					"path": [
+						"2010-04-01",
+						"Accounts",
+						"{{twilioAccountSID}}",
+						"Messages.json"
+					]
+				},
+				"description": "Using Twilio account."
+			},
+			"response": []
+		}
+	]
+}
